@@ -1,0 +1,4 @@
+pytest
+python-dotenv  # if using .env
+pygame         # if planning 2D visuals
+numpy          # if using for neural nets
