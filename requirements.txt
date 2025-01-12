@@ -1,4 +1,5 @@
-pytest
-python-dotenv  # if using .env
-pygame         # if planning 2D visuals
-numpy          # if using for neural nets
+pytest         # for test
+python-dotenv  # for using .env
+pygame         # for 2D visuals
+numpy          # for neural nets
+matplotlib     # for graph drawing

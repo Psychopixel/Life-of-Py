@@ -1,30 +1,65 @@
 from src.world import World
 from src.config import EnvConfig
+import pygame
+import time
+from src.entities import Plant, Food, Prey, Predator
 
 def main():
     # Load config
     config = EnvConfig("config/.env")
     config.load()
 
+    pygame.init()
+    screen = pygame.display.set_mode((800, 800))  # Example window size
+    clock = pygame.time.Clock()
+
     # Read grid width/height from config or fallback
     world = World(
-        width=config.get_int("GRID_WIDTH", fallback=200),
-        height=config.get_int("GRID_HEIGHT", fallback=200),
+        width=config.get_int("GRID_WIDTH", fallback=1000),
+        height=config.get_int("GRID_HEIGHT", fallback=1000),
         config=config
     )
 
     # Populate it
     world.populate_randomly()
 
-    # Example main loop
-    num_ticks = 1000
-    for tick in range(num_ticks):
-        world.update()  # calls update() on each entity in random order
-        # Possibly do some printing/logging
-        if tick % 50 == 0:
-            print(f"Tick {tick}: {len(world.entities)} entities alive.")
+    running = True
+    while running:
+        # 1) Process events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            # handle keyboard/mouse here
 
-    print("Simulation finished.")
+        # 2) Update simulation if not paused
+        world.update()
+
+        # 3) Clear screen
+        screen.fill((0, 0, 0))
+
+        # 4) Render each cell or entity
+        for e in world.entities:
+            # e.x, e.y => transform to screen coords
+            color = (0, 0, 0)  # Default color (black)
+            if isinstance(e, Plant):
+                color = (0, 255, 0)  # Green for plants
+            elif isinstance(e, Food):
+                color = (255, 255, 0)  # Yellow for food
+            elif isinstance(e, Prey):
+                color = (0, 0, 255)  # Blue for prey
+            elif isinstance(e, Predator):
+                color = (255, 0, 0)  # Red for predators
+
+            pygame.draw.rect(
+                screen,
+                color,
+                pygame.Rect(e.x * 4, e.y * 4, 4, 4)  # example scale
+            )
+
+        pygame.display.flip()
+        clock.tick(60)  # ~60 FPS
+
+    pygame.quit()
 
 if __name__ == "__main__":
     main()

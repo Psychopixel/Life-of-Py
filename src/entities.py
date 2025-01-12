@@ -2,6 +2,7 @@
 from typing import Optional, Tuple
 from src.neural_net import NeuralNet
 import numpy as np
+import random  # Importazione mancante
 
 class Entity:
     """
@@ -17,7 +18,7 @@ class Entity:
         self.y = y
         self.alive = True  # or active status
 
-    def update(self):
+    def update(self, world: "World"):
         """
         Called every simulation tick to update entity state.
         Derived classes will override this.
@@ -28,13 +29,14 @@ class Entity:
         """
         Return the (x, y) position of this entity.
         """
-        return (self.x, self.y)
+        return self.x, self.y
 
     def die(self):
         """
         Mark the entity as dead (to be removed from the simulation).
         """
         self.alive = False
+
 
 class Plant(Entity):
     """
@@ -53,6 +55,7 @@ class Plant(Entity):
         """
         # e.g., if self.ticks_to_mature > 0: self.ticks_to_mature -= 1
         pass
+
 
 class Food(Entity):
     """
@@ -79,6 +82,7 @@ class Food(Entity):
         if self.amount <= 0:
             self.die()
 
+
 class Prey(Entity):
     """
     Prey are creatures that:
@@ -94,7 +98,7 @@ class Prey(Entity):
         y: int,
         energy: float = 10.0,
         max_energy: float = 20.0,
-        net: NeuralNet = None,
+        net: Optional[NeuralNet] = None,
         reproduction_cooldown_max: int = 100,
         reproduction_energy_threshold: float = 15.0
     ):
@@ -143,10 +147,8 @@ class Prey(Entity):
         # (4) Reproduction logic
         if self.reproduction_cooldown > 0:
             self.reproduction_cooldown -= 1
-        else:
-            # Enough energy to reproduce?
-            if self.energy >= self.reproduction_energy_threshold:
-                self._attempt_reproduction(world)
+        elif self.energy >= self.reproduction_energy_threshold:
+            self._attempt_reproduction(world)
 
     def eat_plant(self, plant_nutrition: float):
         """
@@ -237,20 +239,20 @@ class Prey(Entity):
             # If occupant is another Prey, Predator, or Food, handle accordingly
             # (e.g., Prey won't eat Food, Predator might eat Prey, etc.)
 
-    def _dir_to_vector(self, direction: int):
+    def _dir_to_vector(self, direction: int) -> Tuple[int, int]:
         """
         Converts a direction index (0=Up, 1=Right, 2=Down, 3=Left)
         into an (dx, dy) movement vector.
         """
         if direction == 0:  # Up
-            return (0, -1)
+            return 0, -1
         elif direction == 1:  # Right
-            return (1, 0)
+            return 1, 0
         elif direction == 2:  # Down
-            return (0, 1)
+            return 0, 1
         elif direction == 3:  # Left
-            return (-1, 0)
-        return (0, 0)
+            return -1, 0
+        return 0, 0
 
     def _attempt_reproduction(self, world: "World"):
         """
@@ -274,12 +276,11 @@ class Prey(Entity):
             return  # No space to reproduce
 
         # Choose a random adjacent cell
-        (child_x, child_y) = random.choice(possible_positions)
+        child_x, child_y = random.choice(possible_positions)
 
         # Create a "child" neural net by copying and mutating the parent's net
         child_net = None
         if self.net:
-            from src.neural_net import NeuralNet  # or from your existing import
             child_net = NeuralNet(
                 input_size=self.net.input_size,
                 hidden_size=self.net.hidden_size,
@@ -313,6 +314,7 @@ class Prey(Entity):
 
         # Finally, add child to the world
         world.add_entity(child)
+
 
 class Predator(Entity):
     """
@@ -353,5 +355,7 @@ class Predator(Entity):
             # We’ll need the world logic to create leftover Food with 'excess'
 
     def _consume_energy(self, amount: float):
+        """
+        Subtract a specified amount of energy.
+        """
         self.energy -= amount
-
