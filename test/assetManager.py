@@ -1,6 +1,7 @@
 import os
 
 import pygame
+from pathlib import Path
 
 
 def singleton(cls):
@@ -17,7 +18,12 @@ def singleton(cls):
 @singleton
 class AssetManager:
     def __init__(self, base_path="assett/"):
-        self.base_path = base_path
+        # Ottieni la directory dello script
+        script_directory = Path(__file__).resolve().parent
+
+        # Costruisci il percorso completo della cartella self.base_path
+        self.base_path = script_directory / base_path
+
         self.images = {}  # Dictionary to store loaded images
         self.lista_immagini = self.elenca_png()
 
@@ -31,7 +37,7 @@ class AssetManager:
             return self.images[filename]
 
         try:
-            image = pygame.image.load(self.base_path + filename)
+            image = pygame.image.load(self.base_path.as_posix() + os.sep + filename)
             self.images[filename] = image
             return image
         except Exception as e:
@@ -48,9 +54,29 @@ class AssetManager:
         """
         Ritorna una lista di tutti i file .png nella cartella specificata.
         """
+        # Ottieni la directory dello script
         cartella = self.base_path
+
+        # Verifica se la cartella esiste
+        if not cartella.exists():
+            print(f"La cartella {cartella} non esiste.")
+            return []
+
+        # Verifica se è una directory
+        if not cartella.is_dir():
+            print(f"{cartella} non è una cartella.")
+            return []
+
+        # Ritorna la lista dei file .png nella cartella
+        return [
+            f.name
+            for f in cartella.iterdir()
+            if f.is_file() and f.suffix.lower() == ".png"
+        ]
+'''
         return [
             f
             for f in os.listdir(cartella)
             if os.path.isfile(os.path.join(cartella, f)) and f.endswith(".png")
         ]
+        '''

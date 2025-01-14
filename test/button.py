@@ -36,9 +36,11 @@ class Button(pygame.sprite.Sprite):
         self.render()
 
     def render(self):
+        '''
         test_font = pygame.font.Font(self.text_font, self.textSize)
         button_text = test_font.render(self.text, False, self.textColor).convert_alpha()
         button_text_rect = button_text.get_rect(center=self.pos)
+        '''
         if not self.pressed:
             self.image = self.imageUp
             self.rect = self.image.get_rect(center=self.pos)
@@ -47,7 +49,7 @@ class Button(pygame.sprite.Sprite):
             self.image = self.imageDown
             self.rect = self.image.get_rect(center=self.pos)
             self.screen.blit(self.image, self.rect)
-        self.screen.blit(button_text, button_text_rect)
+        #self.screen.blit(button_text, button_text_rect)
 
     def get_rect(self):
         return self.rect
