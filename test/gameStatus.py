@@ -1,6 +1,9 @@
 import random
-
+import os
+import time
 import pygame
+from world import World
+from config import EnvConfig
 
 
 def singleton(cls):
@@ -14,33 +17,33 @@ def singleton(cls):
     return get_instance
 
 
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
-EXIT_POS = (1820, 1010)
-START_POS = (1820, 1010)
-RESTART_POS = (1820, 1010)
-TITOLO_POS = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-TABLE_X = 670
-TABLE_Y = SCREEN_HEIGHT / 2
-NUOVA_PARTITA = pygame.event.custom_type()
-FINE_GIOCO = pygame.event.custom_type()
-CONTINUA_GIOCO = pygame.event.custom_type()
-END_TEXT_POS = (320, 320)
-FASE_INIZIO = "F1"
-FASE_GIOCO = "F2"
-
-
 @singleton
 class GameStatus:
+    
     def __init__(self):
+        self.config = EnvConfig("config/.env")
+        if not self.config.load():
+            raise ValueError("Failed to load .env file. Check the file path and contents.")
         self.resetGame()
-
+    
     def resetGame(self):
-        self.tableCard: list = []
-        self.fasePartita: str = FASE_INIZIO
+        # Data for graphs
+        plant_counts = []
+        prey_counts = []
+        predator_counts = []
+        food_counts = []
+        max_ticks = 100  # Number of ticks to display in the graphs
+
+        # Initialize world
+        world = World(
+            width=self.config.get_int("GRID_WIDTH", fallback=1000),
+            height=self.config.get_int("GRID_HEIGHT", fallback=1000),
+            config=self.config,
+        )
+        world.populate_randomly()
+        self.fasePartita: str = self.config.get("FASE_INIZIO")
 
     def start_game(self):
         self.partita = True
-
-    def start_game(self):
-        self.partita = True
+        start_time = time.time()
+        tick = 0

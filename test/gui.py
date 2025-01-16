@@ -5,10 +5,15 @@ from assetManager import AssetManager
 from button import Button
 from event import Event
 from gameStatus import GameStatus
+import matplotlib.pyplot as plt
+from config import EnvConfig
 
 
 class Gui:
     def __init__(self, screen):
+        self.config = EnvConfig("config/.env")
+        if not self.config.load():
+            raise ValueError("Failed to load .env file. Check the file path and contents.")
         self.assetManager = AssetManager()
         self.screen = screen
         self.gameStatus = GameStatus()
@@ -25,7 +30,7 @@ class Gui:
             self.screen,
             "startButton_up.png",
             "startButton_down.png",
-            gs.START_POS,
+            (self.config.get_int("START_POS_X"),self.config.get_int("START_POS_Y")),
             self.onStartButtonClick,
             "black",
             30,
@@ -38,7 +43,7 @@ class Gui:
             self.screen,
             "exitButton_up.png",
             "exitButton_down.png",
-            gs.EXIT_POS,
+            (self.config.get_int("EXIT_POS_X"), self.config.get_int("EXIT_POS_Y")),
             self.onExitButtonClick,
             "black",
             30,
@@ -99,7 +104,7 @@ class Gui:
                 x += word_width + space
             x = pos[0]  # Reset the x.
             y += word_height  # Start on new row.
-
+    '''
     def generate_angles(self, number, add=0):
         # For number 1, return [0]
         if number == 1:
@@ -120,7 +125,7 @@ class Gui:
             angles.append(0 + add)
 
         return sorted(angles)
-
+'''
     def rotate(self, surface, angle, pivot, offset):
         """Rotate the surface around the pivot point.
 
@@ -137,21 +142,59 @@ class Gui:
         # Add the offset vector to the center/pivot point to shift the rect.
         rect = rotated_image.get_rect(center=pivot + rotated_offset)
         return rotated_image, rect  # Return the rotated image and shifted rect.
+    
+    def draw_graph(self, surface, data, color, x, y, title):
+        """
+        Draw a graph on the Pygame surface using matplotlib.
+        """
+        plt.figure(figsize=(3, 2), dpi=100)
+        plt.plot(data, color=color)
+        plt.title(title)
+        plt.xlabel("Ticks")
+        plt.ylabel("Count")
+        plt.tight_layout()
 
-    def renderScreen(self, events, tableCard):
+        # Save the plot to a BytesIO object
+        buf = BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+
+        # Load the image into Pygame
+        image = pygame.image.load(buf)
+        surface.blit(image, (x, y))
+        plt.close()
+
+    def draw_counters(self, surface, tick, elapsed_time, x, y):
+        """
+        Draw the tick counter and elapsed time on the Pygame surface.
+        """
+        font = pygame.font.SysFont("Arial", 24)
+        
+        # Draw tick counter
+        tick_text = font.render(f"Tick: {tick}", True, self.config.get_color("WHITE"))
+        surface.blit(tick_text, (x, y))
+        
+        # Draw elapsed time
+        minutes = int(elapsed_time // 60)
+        seconds = int(elapsed_time % 60)
+        time_text = font.render(f"Time: {minutes:02}:{seconds:02}", True, self.config.get_color("WHITE"))
+        surface.blit(time_text, (x, y + 30))
+
+    def renderScreen(self, events):
         # self.screen.fill((30, 120, 0))
-        self.screen.blit(self.background, self.background.get_rect())
 
-        if self.gameStatus.fasePartita == gs.FASE_INIZIO:
+        if self.gameStatus.fasePartita == self.config.get("FASE_INIZIO"):
             self.screen.blit(self.titolo, self.titolo_rect)
-            """ self.exit_button.update(events)
-            self.exit_button.render()
-            """
             self.start_button.update(events)
-            self.start_button.render() 
-        elif self.gameStatus.fasePartita == gs.FASE_GIOCO:
+            self.start_button.render()
+        elif self.gameStatus.fasePartita == self.config.get("FASE_GIOCO"):
+            self.screen.blit(self.background, self.background.get_rect())
+            spazio_world = pygame.Rect(
+                self.config.get_int("WORLD_POS_X"), self.config.get_int("WORLD_POS_Y"), self.config.get_int("WORLD_SIZE_X"), self.config.get_int("WORLD_SIZE_Y")
+            )
+            pygame.draw.rect(self.background, (0, 0, 0), spazio_world)
             self.exit_button.update(events)
-            self.exit_button.render() 
+            self.exit_button.render()
             pass
         else:
             pass

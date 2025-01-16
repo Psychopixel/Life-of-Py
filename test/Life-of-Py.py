@@ -1,4 +1,5 @@
 from game import Game
+import gameStatus as gs
 
 def Life_of_Py():
     game = Game()

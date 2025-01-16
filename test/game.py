@@ -1,17 +1,23 @@
 from sys import exit
-
 import pygame
-
-import gameStatus as gs
+from config import EnvConfig  # Import from config.py
 from assetManager import AssetManager
 from gameStatus import GameStatus
 from gui import Gui
+import os
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((gs.SCREEN_WIDTH, gs.SCREEN_HEIGHT))
+        # Load environment variables
+        self.config = EnvConfig("config/.env")
+        if not self.config.load():
+            raise ValueError("Failed to load .env file. Check the file path and contents.")
+        
+        screen_width = self.config.get_int("SCREEN_WIDTH")
+        screen_height = self.config.get_int("SCREEN_HEIGHT")
+        self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption("Life of Py")
         self.assetManager = AssetManager()
         self.assetManager.load_all_images()
@@ -29,7 +35,7 @@ class Game:
             events = pygame.event.get()
             self.manage_input(events)
             self.clock.tick(100)
-            self.gui.renderScreen(events, self.gameStatus.tableCard)
+            self.gui.renderScreen(events)
 
     def manage_input(self, events: list):
         for event in events:
@@ -39,10 +45,9 @@ class Game:
                 self.handle_mouse_event()
 
     def start_game(self):
-        print("START")
         self.gameStatus.resetGame()
         self.gameStatus.start_game()
-        self.gameStatus.fasePartita = gs.FASE_GIOCO
+        self.gameStatus.fasePartita = self.config.get("FASE_GIOCO")
         pass
 
     def close_game(self):
