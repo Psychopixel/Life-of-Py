@@ -1,7 +1,7 @@
 class Event(object):
     def __init__(self):
         self.__eventhandlers = []
-
+        
     def __iadd__(self, handler):
         self.__eventhandlers.append(handler)
         return self

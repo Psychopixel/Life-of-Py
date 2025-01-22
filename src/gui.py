@@ -22,8 +22,6 @@ class Gui:
         self.screen = pygame.display.get_surface()
         self.gameStatus = GameStatus()
         self.exit = Event()
-        self.calare = Event()
-        self.prendi = Event()
         self.restart = Event()
         self.start = Event()
         self.titolo = self.assetManager.load_image("copertina.png")
@@ -84,12 +82,6 @@ class Gui:
 
     def onRestartButtonClick(self):
         self.restart()
-
-    def onCalareButtonClik(self):
-        self.calare()
-
-    def onPrendiButtonClick(self):
-        self.prendi()
 
     def blit_text(self, surface, text, pos, font, color=pygame.Color("black")):
         words = [
@@ -229,36 +221,6 @@ class Gui:
         )
         surface.blit(time_text, (self.config.get_int("COUNTER_TEXT_X"), self.config.get_int("COUNTER_TEXT_Y") + self.config.get_int("MARGIN") * 2))
 
-    def draw_entities(self, world, surface):
-        """
-        Draws entities on the surface based on the 2D world list.
-        Each entity is represented as a point with a specific color:
-        - Plant: Green
-        - Prey: Blue
-        - Predator: Red
-        - Food: Yellow
-        """
-        # Define colors for each entity type
-        colors = {
-            "Plant": (0, 255, 0),    # Green
-            "Prey": (0, 0, 255),     # Blue
-            "Predator": (255, 0, 0), # Red
-            "Food": (255, 255, 0)    # Yellow
-        }
-
-        # Iterate through the world grid
-        for i in range(self.config.get_int("WORLD_SIZE_X")):
-            for j in range(self.config.get_int("WORLD_SIZE_Y")):
-                entity = world.get_entity(i,j)  # Get the entity at cell (i, j)
-                if entity:  # If the cell is not empty
-                    entity_type = type(entity).__name__  # Get the entity's type
-                    if entity_type in colors:
-                        x = self.config.get_int("WORLD_POS_X") + i
-                        y = self.config.get_int("WORLD_POS_Y") + j
-
-                        # Draw a single pixel at the calculated position with the corresponding color
-                        surface.set_at((x, y), colors[entity_type])
-
 
     def renderScreen(self, events):
         
@@ -274,15 +236,15 @@ class Gui:
             background_copy = self.background.copy()
 
             # Draw the world grid on the copy
-            spazio_world = pygame.Rect(
-                self.config.get_int("WORLD_POS_X"),
-                self.config.get_int("WORLD_POS_Y"),
-                self.config.get_int("WORLD_SIZE_X"),
-                self.config.get_int("WORLD_SIZE_Y"),
-            )
-            pygame.draw.rect(background_copy, (0, 0, 0), spazio_world)
+            self.gameStatus.world.update()
+            self.gameStatus.world.draw_entities()
 
-            self.draw_entities(self.gameStatus.world, background_copy)
+            # Blit the world surface onto the main screen
+            background_copy.blit(
+                self.gameStatus.world,
+                (self.config.get_int("WORLD_POS_X"), self.config.get_int("WORLD_POS_Y")))
+
+
 
             # Draw graphs on the copy
             graph_x = self.config.get_int("GRAPH_X")

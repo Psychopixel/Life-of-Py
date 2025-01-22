@@ -25,6 +25,8 @@ class GameStatus:
         if not self.config.load():
             raise ValueError("Failed to load .env file. Check the file path and contents.")
         self.resetGame()
+        self.tick = 0
+        self.status = False
     
     def resetGame(self):
         # Data for graphs
@@ -44,22 +46,28 @@ class GameStatus:
         self.prey_counts.append(self.world.num_prey())
         self.predator_counts.append(self.world.num_predator())
         self.food_counts.append(self.world.num_food())
-        self.partita = False
+        self.status = False
         self.fasePartita: str = self.config.get("FASE_INIZIO")
 
     def start_game(self):
-        self.partita = True
+        self.status = True
         self.start_time = time.time()
         self.tick = 0
 
-    def status(self):
-        return self.partita
-    
+   
+    def step_tick(self):
+        self.tick += 1
+        self.world.update()
+        self.plant_counts.append(self.world.num_plant())
+        self.prey_counts.append(self.world.num_prey())
+        self.predator_counts.append(self.world.num_predator())
+        self.food_counts.append(self.world.num_food())
+
     def max_ticks(self):
         return self.max_ticks
     
-    def tick(self):
-        return self.tick
+    """     def tick(self):
+        return self.tick """
     
     def world(self):
         return self.world

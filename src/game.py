@@ -33,11 +33,13 @@ class Game:
         self.gui.AddSubscriberForStartEvent(self.start_game)
 
     def run(self):
-        while self.gameStatus.status:
+        while True:
             #print("game: running")
             events = pygame.event.get()
             self.manage_input(events)
             self.clock.tick(100)
+            if self.gameStatus.status:
+                self.gameStatus.step_tick()
             self.gui.renderScreen(events)
 
     def manage_input(self, events: list):

@@ -1,6 +1,8 @@
 # src/entities.py
 from typing import Optional, Tuple
 from src.neural_net import NeuralNet
+from src.config import EnvConfig
+from src.event import Event
 import numpy as np
 import random  # Importazione mancante
 
@@ -10,6 +12,9 @@ class Entity:
     """
 
     def __init__(self, x: int, y: int):
+        self.config = EnvConfig("config/.env")
+        if not self.config.load():
+            raise ValueError("Failed to load .env file. Check the file path and contents.")
         """
         :param x: X position on the grid
         :param y: Y position on the grid
@@ -44,6 +49,8 @@ class Plant(Entity):
     In the future, we might add growth timers or reproduction logic.
     """
 
+    plant_reproduce = Event()
+
     def __init__(self, x: int, y: int, nutrition_value: int = 1):
         super().__init__(x, y)
         self.nutrition_value = nutrition_value
@@ -54,7 +61,16 @@ class Plant(Entity):
         For now, plants do nothing unless we implement growth or reproduction logic.
         """
         # e.g., if self.ticks_to_mature > 0: self.ticks_to_mature -= 1
-        pass
+        if self.ticks_to_mature < self.config.get_int("PLANT_TICK_TO_MATURE"):
+            self.ticks_to_mature += 1
+        # Check if the plant reproduces
+        if self.ticks_to_mature >= self.config.get_int("PLANT_TICK_TO_MATURE"):
+            check = random.random()  # Random float between 0 and 1
+            if check <= self.config.get_float("PLANT_PERC_NEW"):
+                # Generate a reproduction event
+                # Trigger the plant reproduction event
+                Plant.plant_reproduce(self)
+                
 
 
 class Food(Entity):
