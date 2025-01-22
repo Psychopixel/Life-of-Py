@@ -1,13 +1,13 @@
 import pygame
 
-import gameStatus as gs
-from assetManager import AssetManager
-from button import Button
-from event import Event
-from gameStatus import GameStatus
+import src.gameStatus as gs
+from src.assetManager import AssetManager
+from src.button import Button
+from src.event import Event
+from src.gameStatus import GameStatus
 import matplotlib.pyplot as plt
 from io import BytesIO
-from config import EnvConfig
+from src.config import EnvConfig
 import numpy as np
 
 

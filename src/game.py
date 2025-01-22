@@ -1,9 +1,9 @@
 from sys import exit
 import pygame
-from config import EnvConfig  # Import from config.py
-from assetManager import AssetManager
-from gameStatus import GameStatus
-from gui import Gui
+from src.config import EnvConfig  # Import from config.py
+from src.assetManager import AssetManager
+from src.gameStatus import GameStatus
+from src.gui import Gui
 import os
 import ctypes
 

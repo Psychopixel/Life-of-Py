@@ -2,8 +2,8 @@ import random
 import os
 import time
 import pygame
-from world import World
-from config import EnvConfig
+from src.world import World
+from src.config import EnvConfig
 
 
 def singleton(cls):

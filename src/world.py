@@ -1,5 +1,6 @@
 import random
 from typing import Optional, List
+import src.gameStatus
 
 from src.entities import Entity, Plant, Prey, Predator, Food
 from src.config import EnvConfig  # If using config-based parameters
@@ -157,3 +158,15 @@ class World:
                 if self.add_entity(predator):
                     placed = True
                 tries += 1
+
+    def num_plant(self):
+        return sum(1 for entity in self.entities if isinstance(entity, Plant))
+    
+    def num_prey(self):
+        return sum(1 for entity in self.entities if isinstance(entity, Prey))
+    
+    def num_predator(self):
+        return sum(1 for entity in self.entities if isinstance(entity, Predator))
+    
+    def num_food(self):
+        return sum(1 for entity in self.entities if isinstance(entity, Food))

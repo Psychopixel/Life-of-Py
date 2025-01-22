@@ -1,5 +1,5 @@
-from game import Game
-import gameStatus as gs
+from src.game import Game
+import src.gameStatus as gs
 
 def Life_of_Py():
     game = Game()

@@ -1,6 +1,6 @@
 import pygame
 
-from assetManager import AssetManager
+from src.assetManager import AssetManager
 
 
 class Button(pygame.sprite.Sprite):

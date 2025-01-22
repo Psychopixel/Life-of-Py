@@ -1,5 +1,5 @@
 # run_simulation.py
-from src.main import main
+from src.lifeOfPy import Life_of_Py
 
 if __name__ == "__main__":
-    main()
+    Life_of_Py()
