@@ -28,22 +28,42 @@ class GameStatus:
     
     def resetGame(self):
         # Data for graphs
-        plant_counts = []
-        prey_counts = []
-        predator_counts = []
-        food_counts = []
-        max_ticks = 100  # Number of ticks to display in the graphs
-
+        self.max_ticks = 100  # Number of ticks to display in the graphs
+        self.plant_counts = [0]
+        self.prey_counts = [0]
+        self.predator_counts = [0]
+        self.food_counts = [0]
         # Initialize world
-        world = World(
+        self.world = World(
             width=self.config.get_int("GRID_WIDTH", fallback=1000),
             height=self.config.get_int("GRID_HEIGHT", fallback=1000),
             config=self.config,
         )
-        world.populate_randomly()
+        self.world.populate_randomly()
+        self.plant_counts.append(self.world.num_plant())
+        self.prey_counts.append(self.world.num_prey())
+        self.predator_counts.append(self.world.num_predator())
+        self.food_counts.append(self.world.num_food())
+        self.partita = False
         self.fasePartita: str = self.config.get("FASE_INIZIO")
 
     def start_game(self):
         self.partita = True
-        start_time = time.time()
-        tick = 0
+        self.start_time = time.time()
+        self.tick = 0
+
+    def status(self):
+        return self.partita
+    
+    def max_ticks(self):
+        return self.max_ticks
+    
+    def tick(self):
+        return self.tick
+    
+    def world(self):
+        return self.world
+    
+    def elapsed_time(self):
+        # Draw counters below the graphs
+        return time.time() - self.start_time
